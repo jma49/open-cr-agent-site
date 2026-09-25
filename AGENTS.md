@@ -29,6 +29,14 @@ The user manual's source lives in the main repository under `docs/manual/{en,zh}
 - Examples of ocra output are labeled as examples and must be technically correct: a code review product cannot show a wrong bug.
 - The design is original. The site may borrow the structure of other product pages but never their copy, visuals or branding.
 
+## Design
+
+- Dark is the default theme; light must stay equally polished.
+- Materials: `.glass` for panels over the page's colour field, `.glass-ink` for terminals and code, which stay dark in both themes. The field and grain live only on the landing page.
+- Brand: the mark in `app/icon.svg` and `components/logo.tsx` (lines of code, one highlighted line running into a lens), wordmark `ocra` in lowercase Inter 600 with tight tracking. Inline SVGs must not rely on `id` references: the layout renders the logo more than once.
+- Avoid the generic AI landing-page look: no pill badges, uppercase eyebrow labels, gradient-text headlines, rows of icon cards, slogans or rule-of-three copy. Prefer left-aligned editorial layouts and concrete statements.
+- Chinese headings get their own sizes and explicit line breaks; do not rely on automatic balancing for CJK.
+
 ## Code style
 
 - The code is the documentation: no large comment blocks; comment only a non-obvious "why".

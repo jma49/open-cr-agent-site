@@ -2,16 +2,14 @@ export type StageKind = "code" | "model" | "planned";
 
 export interface Copy {
   hero: {
-    badge: string;
+    status: string;
     title: string;
-    highlight: string;
     subtitle: string;
     start: string;
     github: string;
+    note: string;
   };
-  proof: { title: string; body: string }[];
-  pipeline: {
-    eyebrow: string;
+  run: {
     title: string;
     body: string;
     legend: Record<StageKind, string>;
@@ -22,13 +20,12 @@ export interface Copy {
       detail: string;
     }[];
   };
-  features: {
-    eyebrow: string;
+  decisions: {
     title: string;
+    body: string;
     items: { title: string; body: string }[];
   };
   anatomy: {
-    eyebrow: string;
     title: string;
     body: string;
     callouts: {
@@ -38,21 +35,14 @@ export interface Copy {
       suggestion: string;
     };
   };
-  plugins: {
-    eyebrow: string;
-    title: string;
-    body: string;
-    points: string[];
-    cta: string;
-  };
-  roadmap: {
-    eyebrow: string;
+  plugins: { title: string; body: string; points: string[]; cta: string };
+  status: {
     title: string;
     items: {
       milestone: string;
       title: string;
       body: string;
-      status: string;
+      state: string;
       done: boolean;
     }[];
   };
@@ -63,381 +53,332 @@ export interface Copy {
     copied: string;
     docs: string;
   };
-  footer: {
-    tagline: string;
-    docs: string;
-    github: string;
-    license: string;
-    manual: string;
-  };
+  footer: { tagline: string; github: string; license: string; manual: string };
 }
 
 const en: Copy = {
   hero: {
-    badge: "Open source · Early development",
-    title: "Code review you can",
-    highlight: "actually trust",
+    status: "M1 shipped · runs locally · Apache-2.0",
+    title: "A code reviewer that reads before it comments.",
     subtitle:
-      "ocra runs specialized review agents inside a deterministic pipeline. Every finding is grounded in code the agent read, anchored to the right line, and worth your time.",
-    start: "Get started",
-    github: "Star on GitHub",
+      "ocra splits a change into focused review tasks. Each agent can only read your repository, has to quote the code it means, and must say what it checked. Most runs end with a handful of findings. Some end with none, and that is fine.",
+    start: "Quickstart",
+    github: "Source on GitHub",
+    note: "Node 22+, any model OpenCode supports",
   },
-  proof: [
-    {
-      title: "Deterministic where it must be",
-      body: "File selection, grouping and line anchoring are code, not prompts.",
-    },
-    {
-      title: "Agents where judgment matters",
-      body: "Focused reviewers with read-only tools and explicit “do not flag” rules.",
-    },
-    {
-      title: "Built to be measured",
-      body: "Ships with an AACR-Bench harness: 200 real PRs, 1,505 expert-verified comments.",
-    },
-  ],
-  pipeline: {
-    eyebrow: "How it works",
-    title: "A pipeline, not a prompt",
-    body: "Every stage that must not go wrong is ordinary, tested code. Models only make the calls that need judgment.",
-    legend: {
-      code: "Deterministic code",
-      model: "Model",
-      planned: "Planned (M2)",
-    },
+  run: {
+    title: "What happens when you run ocra review",
+    body: "The steps that must not go wrong are plain, tested code. Models are only asked for judgment.",
+    legend: { code: "code", model: "model", planned: "planned" },
     stages: [
       {
         name: "Select",
         kind: "code",
-        summary: "Pick reviewable files",
+        summary: "Decide which files are worth reading",
         detail:
-          "Every changed file is reviewed or excluded with a reason: binary, secret, generated, vendored, lock file or too large. Secrets can never be opted back in; migrations are always reviewed.",
+          "Binaries, lock files, vendored and generated code, likely secrets and oversized diffs are set aside, each with a recorded reason. Migrations are always kept. A secret can never be opted back in.",
       },
       {
         name: "Triage",
         kind: "code",
-        summary: "Assign a risk tier",
+        summary: "Size up the risk",
         detail:
-          "Size and sensitive paths such as auth/ or crypto/ decide how much scrutiny a change gets.",
+          "Churn and sensitive paths such as auth/ or crypto/ put the change in a trivial, lite or full tier.",
       },
       {
         name: "Bundle",
         kind: "model",
-        summary: "Group related files",
+        summary: "Group files that belong together",
         detail:
-          "A light model groups files by index — interface with implementation, translations together. Invalid answers are repaired or fall back to per-file review.",
+          "A cheap model groups files by index: an interface with its implementation, translations together. Bad answers are repaired or fall back to one file per task.",
       },
       {
         name: "Review",
         kind: "model",
-        summary: "Isolated agent tasks",
+        summary: "One isolated agent per group",
         detail:
-          "Each bundle is reviewed by an agent that can only read the revision under review. It quotes code instead of guessing line numbers.",
+          "The agent reads the exact revision under review through three tools and reports each issue by quoting code. It has no shell, cannot write, and stops after 20 steps.",
       },
       {
         name: "Anchor",
         kind: "code",
-        summary: "Resolve exact lines",
+        summary: "Find the lines ocra will point at",
         detail:
-          "Quoted code is matched in the changed hunks, then the whole file, then other changed files. A finding is never silently dropped.",
+          "The quote is matched in the changed hunks, then the whole file, then the other changed files. If nothing matches, the finding stays on the file instead of disappearing.",
       },
       {
         name: "Verify",
         kind: "planned",
-        summary: "Fact-check findings",
+        summary: "Check each finding against the diff",
         detail:
-          "Each finding is checked against the diff; only findings proven wrong are removed.",
+          "Coming in M2. Only findings the diff proves wrong will be dropped.",
       },
       {
         name: "Judge",
         kind: "planned",
-        summary: "Deduplicate and decide",
+        summary: "Merge duplicates, settle severity",
         detail:
-          "A top-tier model merges duplicates across reviewers, calibrates severity and decides the verdict.",
+          "Coming in M2. A stronger model reads all reviewers' findings together and decides the verdict.",
       },
     ],
   },
-  features: {
-    eyebrow: "Why ocra",
-    title: "Built for signal, not volume",
+  decisions: {
+    title: "Decisions we made on purpose",
+    body: "Each of these costs something. We think the trade is worth it.",
     items: [
       {
-        title: "Precision first",
-        body: "Reviewers state what they must not flag. Style nits, speculation and unrelated code stay out of your review.",
+        title: "The model never picks the line.",
+        body: "Models are bad at line numbers and good at quoting. So they quote, and ocra finds the lines.",
       },
       {
-        title: "Lands on the right line",
-        body: "Models quote code; ocra resolves the quote. No invented line numbers, no comments floating on the wrong file.",
+        title: "Reviewers are told what to leave alone.",
+        body: "Style, speculation, missing tests and untouched code are out of scope in every prompt. You get fewer comments, not weaker ones.",
       },
       {
-        title: "Any model, with failback",
-        body: "Configure a chain per tier. Overloads and quota errors move to the next model; failing models are skipped for the run.",
+        title: "Nothing runs with write access.",
+        body: "Agents can read files, read diffs and search. Editing, shell and network tools are switched off.",
       },
       {
-        title: "Cost you can see",
-        body: "Input, output, reasoning and cached tokens with the cost of every attempt. Agents are capped at 20 steps.",
+        title: "Your machine stays out of the prompt.",
+        body: "Local OpenCode config, installed skills and instruction files are disabled before the first request.",
       },
       {
-        title: "Private by default",
-        body: "Your local config, skills and instruction files never reach the model. Tools are read-only and served on localhost with per-run secrets.",
+        title: "Every attempt shows its bill.",
+        body: "Input, output, reasoning and cached tokens, with cost, per model call and per run.",
       },
       {
-        title: "Plugins all the way down",
-        body: "Code hosts, runtimes, reviewers, rule packs, tools and listeners share one plugin contract.",
+        title: "When a model falls over, the next one takes the task.",
+        body: "Give each tier a list of models. Overloads and quota errors move on; a model that keeps failing is skipped for the rest of the run.",
       },
     ],
   },
   anatomy: {
-    eyebrow: "Anatomy of a finding",
-    title: "Every comment shows its work",
-    body: "A finding carries the code it refers to, the evidence behind it and a minimal fix — so you can accept or dismiss it in seconds.",
+    title: "What a finding looks like",
+    body: "Enough to decide in a few seconds whether to fix it or dismiss it.",
     callouts: {
-      quote: "The agent quotes the code it means",
-      lines: "ocra resolves the quote to exact lines",
-      evidence: "Facts verified with read-only tools",
-      suggestion: "A minimal fix, when there is one",
+      quote: "The line the agent quoted",
+      lines: "Where ocra located it",
+      evidence: "What the agent checked with its tools",
+      suggestion: "The smallest fix, when there is one",
     },
   },
   plugins: {
-    eyebrow: "Extensible",
-    title: "Your conventions, as a plugin",
-    body: "Teach reviewers your architecture rules, add a reviewer for your domain, or stream events into your own telemetry. Plugins get a small, typed contract and nothing else.",
+    title: "Your team's rules, as a plugin",
+    body: "The Git adapter, the OpenCode runtime and the reviewer that ships today are plugins too. Yours get the same small contract: register rules, reviewers, tools or listeners, and receive your own settings.",
     points: [
-      "Bootstrap, configure and post-configure lifecycle",
+      "Three lifecycle hooks, run in a fixed order",
       "Settings validated per plugin",
-      "Duplicate or late registrations fail loudly",
+      "Clashing or late registrations fail with the plugin's name",
     ],
-    cta: "Read the plugin guide",
+    cta: "Plugin guide",
   },
-  roadmap: {
-    eyebrow: "Roadmap",
-    title: "Where ocra is today",
+  status: {
+    title: "Where it stands",
     items: [
       {
         milestone: "M1",
-        title: "Local review MVP",
-        body: "CLI, selection, bundling, anchoring, correctness reviewer, OpenCode runtime, plugins, benchmark harness.",
-        status: "Done",
+        title: "Local review",
+        body: "CLI, selection, bundling, anchoring, the correctness reviewer, OpenCode runtime, plugins, benchmark harness.",
+        state: "shipped",
         done: true,
       },
       {
         milestone: "M2",
-        title: "Multi-agent review",
-        body: "Security and performance reviewers, review matrix, verification, judging and risk tiers.",
-        status: "Next",
+        title: "More reviewers",
+        body: "Security and performance reviewers, verification, a judge, risk-based routing.",
+        state: "next",
         done: false,
       },
       {
         milestone: "M3",
-        title: "GitHub integration",
-        body: "Inline pull request comments, verdicts and incremental re-review.",
-        status: "Planned",
+        title: "GitHub",
+        body: "Inline comments on pull requests and incremental re-review.",
+        state: "planned",
         done: false,
       },
       {
         milestone: "M4",
-        title: "Production hardening",
-        body: "Circuit breakers, remote configuration, review memory and a recall-focused --ultra mode.",
-        status: "Planned",
+        title: "Hardening",
+        body: "Circuit breakers, remote config, review memory, an --ultra mode for recall.",
+        state: "planned",
         done: false,
       },
     ],
   },
   start: {
-    title: "Review your first change",
-    body: "ocra runs locally against any Git repository. Bring a model key: only the change under review and the files reviewers ask for are sent to your model provider.",
+    title: "Try it on a repository you know",
+    body: "It runs against any Git repository on your machine. Your model provider sees the change under review and the files the agents open, nothing else.",
     copy: "Copy",
     copied: "Copied",
     docs: "Read the quickstart",
   },
   footer: {
-    tagline: "Open-source multi-agent code review.",
-    docs: "Documentation",
+    tagline: "Open-source code review with agents that read first.",
     github: "GitHub",
     license: "Apache-2.0",
-    manual: "User manual",
+    manual: "Manual",
   },
 };
 
 const zh: Copy = {
   hero: {
-    badge: "开源 · 早期开发中",
-    title: "真正值得",
-    highlight: "信任的代码审查",
+    status: "M1 已发布 · 本地运行 · Apache-2.0",
+    title: "先读懂代码，\n再开口的代码审查。",
     subtitle:
-      "ocra 在一条确定性的流水线里运行专项审查 agent。每条意见都基于 agent 真正读过的代码，落在正确的行上，值得你花时间看。",
-    start: "开始使用",
-    github: "在 GitHub 上 Star",
+      "ocra 把一次改动拆成几个聚焦的审查任务。每个 agent 只能读你的仓库，必须引用它说的那段代码，还要交代自己查过什么。多数时候你会收到几条意见，有时一条也没有，这也是正常结果。",
+    start: "快速上手",
+    github: "GitHub 源码",
+    note: "Node 22+，支持 OpenCode 能用的任何模型",
   },
-  proof: [
-    {
-      title: "该确定的地方就确定",
-      body: "文件选择、分组和行号定位由代码完成，而不是提示词。",
-    },
-    {
-      title: "需要判断的地方交给 agent",
-      body: "专注的审查员，只有只读工具，并明确写了“不该报什么”。",
-    },
-    {
-      title: "为评测而生",
-      body: "自带 AACR-Bench 评测工具：200 个真实 PR、1,505 条专家核实的审查意见。",
-    },
-  ],
-  pipeline: {
-    eyebrow: "工作原理",
-    title: "是一条流水线，而不是一段提示词",
-    body: "所有不能出错的步骤都是普通的、有测试的代码。只有需要判断的地方才交给模型。",
-    legend: { code: "确定性代码", model: "模型", planned: "规划中（M2）" },
+  run: {
+    title: "运行 ocra review 时发生了什么",
+    body: "不能出错的步骤，都是普通的、有测试的代码。只有需要判断的地方才交给模型。",
+    legend: { code: "代码", model: "模型", planned: "规划中" },
     stages: [
       {
         name: "Select",
         kind: "code",
-        summary: "挑选要审查的文件",
+        summary: "决定哪些文件值得读",
         detail:
-          "每个改动文件要么被审查，要么被排除并记录原因：二进制、密钥、生成代码、第三方代码、锁文件或过大。密钥文件永远无法被重新纳入，数据库迁移文件始终会被审查。",
+          "二进制、锁文件、第三方和生成的代码、疑似密钥、过大的 diff 会被放到一边，每个都记录原因。数据库迁移始终保留。密钥文件无论如何都不会被重新纳入。",
       },
       {
         name: "Triage",
         kind: "code",
-        summary: "确定风险档位",
+        summary: "判断风险",
         detail:
-          "改动规模和 auth/、crypto/ 这类敏感路径决定一次改动要被审得多仔细。",
+          "根据改动量和 auth/、crypto/ 这类敏感路径，把改动分到 trivial、lite 或 full 档。",
       },
       {
         name: "Bundle",
         kind: "model",
-        summary: "把相关文件分组",
+        summary: "把该一起看的文件放一组",
         detail:
-          "由 light 模型按文件编号分组：接口和实现放一起，各语言的翻译文件放一起。答案不合法时会被修补，或者退回按文件逐个审查。",
+          "由便宜的模型按文件编号分组：接口和实现放一起，各语言的翻译文件放一起。答案不合格就修补，或者退回一个文件一个任务。",
       },
       {
         name: "Review",
         kind: "model",
-        summary: "隔离的 agent 任务",
+        summary: "每组一个隔离的 agent",
         detail:
-          "每个分组由一个 agent 审查，它只能读取被审查的那个版本，并引用代码而不是猜行号。",
+          "agent 通过三个工具读取被审查的那个版本，用引用代码的方式报告问题。它没有 shell，不能写文件，最多执行 20 步。",
       },
       {
         name: "Anchor",
         kind: "code",
-        summary: "解析出准确行号",
+        summary: "找到 ocra 要指向的那几行",
         detail:
-          "引用的代码依次在改动过的代码段、整个文件、其他改动文件里匹配。任何问题都不会被悄悄丢掉。",
+          "引用的代码依次在改动过的代码段、整个文件、其他改动文件里匹配。都匹配不上，问题就挂在文件上，而不是消失。",
       },
       {
         name: "Verify",
         kind: "planned",
-        summary: "逐条事实核查",
-        detail: "每条问题都会对照 diff 核查，只删掉能被证明错误的。",
+        summary: "对照 diff 核查每条问题",
+        detail: "M2 实现。只会删掉能被 diff 证明是错的问题。",
       },
       {
         name: "Judge",
         kind: "planned",
-        summary: "去重并给出结论",
-        detail:
-          "由最强的模型合并不同审查员的重复意见、校准严重程度，并给出最终结论。",
+        summary: "合并重复，定下严重程度",
+        detail: "M2 实现。由更强的模型通读所有审查员的意见，给出最终结论。",
       },
     ],
   },
-  features: {
-    eyebrow: "为什么选 ocra",
-    title: "要的是信号，不是数量",
+  decisions: {
+    title: "刻意做出的几个取舍",
+    body: "每一条都有代价，我们认为值得。",
     items: [
       {
-        title: "精确优先",
-        body: "审查员明确知道哪些不该报。代码风格的细节、没有依据的推测、与本次改动无关的代码，都不会出现在审查结果里。",
+        title: "行号从来不由模型决定。",
+        body: "模型不擅长行号，却很擅长引用。所以让它引用，由 ocra 去找行号。",
       },
       {
-        title: "落在正确的行上",
-        body: "模型引用代码，由 ocra 解析位置。没有编造的行号，也不会有评论挂错文件。",
+        title: "审查员被明确告知哪些别管。",
+        body: "代码风格、没有依据的推测、缺少测试、没改动的代码，每个提示词里都排除在外。意见变少了，但没有变弱。",
       },
       {
-        title: "任意模型，自动降级",
-        body: "每个层级配置一条模型链。遇到过载或额度用完就换下一个，反复失败的模型在本次运行里会被跳过。",
+        title: "没有任何东西拥有写权限。",
+        body: "agent 能读文件、读 diff、搜索代码。编辑、shell 和网络工具全部关闭。",
       },
       {
-        title: "成本看得见",
-        body: "输入、输出、推理和缓存 token，以及每次尝试的花费。每个 agent 最多执行 20 步。",
+        title: "你本机的东西不进提示词。",
+        body: "在发出第一个请求之前，本机的 OpenCode 配置、已安装的 skill 和指令文件都会被关掉。",
       },
       {
-        title: "默认保护隐私",
-        body: "你本机的配置、skill 和指令文件永远不会发给模型。工具只读，只在本机提供，并使用每次运行随机生成的密钥。",
+        title: "每次调用都有账单。",
+        body: "输入、输出、推理和缓存 token，以及花费，按每次模型调用和每次运行分别列出。",
       },
       {
-        title: "一切皆插件",
-        body: "代码托管平台、运行时、审查员、规则包、工具和事件监听，共用同一套插件接口。",
+        title: "一个模型倒下，下一个接手。",
+        body: "给每个层级配一串模型。遇到过载或额度用完就换下一个；反复失败的模型在本次运行里会被跳过。",
       },
     ],
   },
   anatomy: {
-    eyebrow: "一条审查意见的构成",
-    title: "每条意见都有据可查",
-    body: "每条意见都带着它指向的代码、背后的依据和一个最小修复，你几秒钟就能决定采纳还是忽略。",
+    title: "一条意见长什么样",
+    body: "信息刚好够你在几秒内决定修还是忽略。",
     callouts: {
-      quote: "agent 引用它所指的代码",
-      lines: "ocra 把引用解析成准确的行号",
-      evidence: "用只读工具核实过的事实",
-      suggestion: "有必要时给出最小修复",
+      quote: "agent 引用的那一行",
+      lines: "ocra 定位到的位置",
+      evidence: "agent 用工具查证过的事实",
+      suggestion: "有必要时，最小的修复",
     },
   },
   plugins: {
-    eyebrow: "可扩展",
-    title: "把团队约定写成插件",
-    body: "把架构规范教给审查员、为你的业务领域加一个审查员，或者把事件接入你自己的遥测系统。插件只拿到一套精简、有类型的接口，别的什么也碰不到。",
+    title: "把团队规范写成插件",
+    body: "Git 适配器、OpenCode 运行时和目前唯一的审查员本身也是插件。你写的插件用的是同一套接口：注册规则、审查员、工具或事件监听，并拿到只属于自己的设置。",
     points: [
-      "bootstrap、configure、postConfigure 三段生命周期",
+      "三个生命周期钩子，按固定顺序执行",
       "每个插件的设置单独校验",
-      "重复注册或越界注册会直接报错",
+      "注册冲突或越界注册时报错，并指出是哪个插件",
     ],
-    cta: "阅读插件指南",
+    cta: "插件指南",
   },
-  roadmap: {
-    eyebrow: "路线图",
-    title: "ocra 现在走到哪了",
+  status: {
+    title: "目前进展",
     items: [
       {
         milestone: "M1",
-        title: "本地审查 MVP",
+        title: "本地审查",
         body: "CLI、文件选择、分组、行号定位、correctness 审查员、OpenCode 运行时、插件、评测工具。",
-        status: "已完成",
+        state: "已发布",
         done: true,
       },
       {
         milestone: "M2",
-        title: "多智能体审查",
-        body: "安全与性能审查员、审查矩阵、逐条核查、最终裁决和风险分档。",
-        status: "下一步",
+        title: "更多审查员",
+        body: "安全与性能审查员、逐条核查、最终裁决、按风险分派。",
+        state: "下一步",
         done: false,
       },
       {
         milestone: "M3",
-        title: "GitHub 集成",
-        body: "PR 行内评论、审查结论和增量复审。",
-        status: "规划中",
+        title: "GitHub",
+        body: "PR 行内评论和增量复审。",
+        state: "规划中",
         done: false,
       },
       {
         milestone: "M4",
-        title: "生产级加固",
+        title: "加固",
         body: "熔断器、远程配置、审查记忆，以及追求召回率的 --ultra 模式。",
-        status: "规划中",
+        state: "规划中",
         done: false,
       },
     ],
   },
   start: {
-    title: "审查你的第一个改动",
-    body: "ocra 在本地对任意 Git 仓库运行。带上一个模型 key 就行：发给模型供应商的，只有被审查的改动和审查员主动请求的文件。",
+    title: "拿一个你熟悉的仓库试试",
+    body: "它可以在你本机的任何 Git 仓库上运行。模型供应商能看到的，只有被审查的改动和 agent 打开过的文件。",
     copy: "复制",
     copied: "已复制",
     docs: "阅读快速上手",
   },
   footer: {
-    tagline: "开源的多智能体代码审查。",
-    docs: "文档",
+    tagline: "先读代码再下结论的开源代码审查。",
     github: "GitHub",
     license: "Apache-2.0",
-    manual: "用户手册",
+    manual: "手册",
   },
 };
 
