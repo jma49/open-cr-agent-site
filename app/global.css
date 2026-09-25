@@ -8,19 +8,33 @@
 }
 
 :root {
-  --color-fd-primary: oklch(0.52 0.12 170);
+  --color-fd-primary: oklch(0.52 0.11 180);
   --color-fd-primary-foreground: oklch(0.99 0 0);
-  --color-fd-ring: oklch(0.52 0.12 170);
-  --brand-glow: oklch(0.52 0.12 170 / 0.18);
-  --model: oklch(0.55 0.17 285);
+  --color-fd-ring: oklch(0.52 0.11 180);
+  --model: oklch(0.55 0.15 285);
+  --field-a: oklch(0.86 0.07 185 / 0.55);
+  --field-b: oklch(0.86 0.06 280 / 0.45);
+  --glass-bg: oklch(1 0 0 / 0.55);
+  --glass-border: oklch(0.2 0.02 180 / 0.1);
+  --glass-highlight: oklch(1 0 0 / 0.8);
+  --glass-shadow: 0 30px 60px -40px oklch(0.2 0.03 200 / 0.35);
+  --grain-opacity: 0.035;
 }
 
 .dark {
-  --color-fd-primary: oklch(0.8 0.14 170);
-  --color-fd-primary-foreground: oklch(0.2 0.04 170);
-  --color-fd-ring: oklch(0.8 0.14 170);
-  --brand-glow: oklch(0.8 0.14 170 / 0.14);
-  --model: oklch(0.75 0.14 285);
+  --color-fd-background: oklch(0.155 0.008 200);
+  --color-fd-card: oklch(0.19 0.01 200);
+  --color-fd-primary: oklch(0.84 0.12 180);
+  --color-fd-primary-foreground: oklch(0.2 0.04 180);
+  --color-fd-ring: oklch(0.84 0.12 180);
+  --model: oklch(0.78 0.12 285);
+  --field-a: oklch(0.45 0.09 185 / 0.35);
+  --field-b: oklch(0.42 0.11 280 / 0.28);
+  --glass-bg: oklch(0.22 0.012 200 / 0.45);
+  --glass-border: oklch(1 0 0 / 0.09);
+  --glass-highlight: oklch(1 0 0 / 0.07);
+  --glass-shadow: 0 30px 70px -35px oklch(0 0 0 / 0.7);
+  --grain-opacity: 0.06;
 }
 
 html {
@@ -35,24 +49,74 @@ html > body[data-scroll-locked] {
   --removed-body-scroll-bar-size: 0px !important;
 }
 
-.bg-grid {
-  background-image:
-    linear-gradient(to right, var(--color-fd-border) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-fd-border) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(
-    ellipse 70% 60% at 50% 0%,
-    black 40%,
-    transparent 100%
-  );
+/* A slow colour field behind the landing page gives the glass panels
+   something to blur; the grain keeps the gradients from banding. */
+.field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
 }
 
-.glow {
-  background: radial-gradient(
-    600px circle at 50% 0%,
-    var(--brand-glow),
-    transparent 70%
-  );
+.field::before,
+.field::after {
+  content: "";
+  position: absolute;
+  width: 60vmax;
+  height: 60vmax;
+  border-radius: 9999px;
+  filter: blur(90px);
+  animation: drift 40s ease-in-out infinite alternate;
+}
+
+.field::before {
+  top: -25vmax;
+  left: -10vmax;
+  background: var(--field-a);
+}
+
+.field::after {
+  bottom: -30vmax;
+  right: -15vmax;
+  background: var(--field-b);
+  animation-duration: 55s;
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes drift {
+  to {
+    transform: translate3d(8vmax, 6vmax, 0) scale(1.1);
+  }
+}
+
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    var(--glass-shadow);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+}
+
+/* Code and terminal panels stay dark in both themes, like a real terminal. */
+.glass-ink {
+  background: oklch(0.16 0.012 200 / 0.78);
+  border: 1px solid oklch(1 0 0 / 0.1);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.08),
+    var(--glass-shadow);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
 }
 
 @keyframes caret {
@@ -66,7 +130,9 @@ html > body[data-scroll-locked] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .caret {
+  .caret,
+  .field::before,
+  .field::after {
     animation: none;
   }
 }

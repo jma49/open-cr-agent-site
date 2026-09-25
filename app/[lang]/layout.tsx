@@ -59,7 +59,10 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col font-sans">
-        <RootProvider i18n={i18nProvider(translations, lang)}>
+        <RootProvider
+          i18n={i18nProvider(translations, lang)}
+          theme={{ defaultTheme: "dark" }}
+        >
           {children}
         </RootProvider>
       </body>

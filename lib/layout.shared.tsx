@@ -17,6 +17,7 @@ export function baseOptions(locale: string): BaseLayoutProps {
     nav: {
       title: <Logo />,
       url: localePath(locale, "/"),
+      transparentMode: "top",
     },
     githubUrl: repoUrl,
     links: [

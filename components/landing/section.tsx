@@ -14,7 +14,7 @@ export function Section({
     <section
       id={id}
       className={cn(
-        "mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 md:py-28",
+        "mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 md:py-28",
         className,
       )}
     >
@@ -23,21 +23,18 @@ export function Section({
   );
 }
 
-export function SectionHeading({
-  eyebrow,
+export function Heading({
   title,
   body,
+  className,
 }: {
-  eyebrow: string;
   title: string;
   body?: string;
+  className?: string;
 }) {
   return (
-    <div className="mx-auto mb-12 max-w-2xl text-center">
-      <p className="mb-3 font-mono text-xs font-medium uppercase tracking-[0.18em] text-fd-primary">
-        {eyebrow}
-      </p>
-      <h2 className="text-balance text-3xl font-semibold tracking-tight md:text-4xl">
+    <div className={cn("mb-12 max-w-2xl", className)}>
+      <h2 className="text-balance text-3xl font-semibold tracking-[-0.03em] md:text-[2.6rem] md:leading-[1.1]">
         {title}
       </h2>
       {body ? (

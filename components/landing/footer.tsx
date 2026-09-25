@@ -11,13 +11,13 @@ export function Footer({
   locale: string;
 }) {
   return (
-    <footer className="border-t">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 text-sm text-fd-muted-foreground sm:px-6 md:flex-row md:items-center md:justify-between">
-        <div>
+    <footer className="border-t border-fd-border">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-10 text-sm text-fd-muted-foreground sm:px-8 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
           <Logo />
-          <p className="mt-2">{copy.tagline}</p>
+          <span>{copy.tagline}</span>
         </div>
-        <nav className="flex flex-wrap gap-6">
+        <nav className="flex gap-6">
           <Link
             href={localePath(locale, "/docs")}
             className="hover:text-fd-foreground"
