@@ -24,6 +24,13 @@ const meta = {
   },
 };
 
+// Vercel provides the production domain; SITE_URL overrides it for a custom domain.
+function siteUrl(): string {
+  if (process.env.SITE_URL) return process.env.SITE_URL;
+  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  return vercel ? `https://${vercel}` : "http://localhost:3000";
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -32,7 +39,7 @@ export async function generateMetadata({
   const { lang } = await params;
   const { title, description } = lang === "zh" ? meta.zh : meta.en;
   return {
-    metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3000"),
+    metadataBase: new URL(siteUrl()),
     title: { default: title, template: "%s · ocra" },
     description,
     alternates: { languages: { en: "/", "zh-CN": "/zh" } },
