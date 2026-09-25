@@ -1,12 +1,72 @@
-@import 'tailwindcss';
-@import 'fumadocs-ui/css/neutral.css';
-@import 'fumadocs-ui/css/preset.css';
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+@theme {
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+:root {
+  --color-fd-primary: oklch(0.52 0.12 170);
+  --color-fd-primary-foreground: oklch(0.99 0 0);
+  --color-fd-ring: oklch(0.52 0.12 170);
+  --brand-glow: oklch(0.52 0.12 170 / 0.18);
+  --model: oklch(0.55 0.17 285);
+}
+
+.dark {
+  --color-fd-primary: oklch(0.8 0.14 170);
+  --color-fd-primary-foreground: oklch(0.2 0.04 170);
+  --color-fd-ring: oklch(0.8 0.14 170);
+  --brand-glow: oklch(0.8 0.14 170 / 0.14);
+  --model: oklch(0.75 0.14 285);
+}
 
 html {
   scrollbar-gutter: stable;
 }
 
+/* The scroll-lock library sets these inline, so only !important overrides them. */
 html > body[data-scroll-locked] {
+  /* biome-ignore lint/complexity/noImportantStyles: overrides inline styles */
   margin-right: 0px !important;
+  /* biome-ignore lint/complexity/noImportantStyles: overrides inline styles */
   --removed-body-scroll-bar-size: 0px !important;
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, var(--color-fd-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-fd-border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    black 40%,
+    transparent 100%
+  );
+}
+
+.glow {
+  background: radial-gradient(
+    600px circle at 50% 0%,
+    var(--brand-glow),
+    transparent 70%
+  );
+}
+
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+.caret {
+  animation: caret 1s steps(1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret {
+    animation: none;
+  }
 }

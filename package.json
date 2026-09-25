@@ -1,10 +1,13 @@
 {
   "name": "open-cr-agent-site",
-  "version": "0.0.33",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "sync-manual": "node scripts/sync-manual.mjs",
+    "predev": "npm run sync-manual",
     "dev": "next dev",
+    "prebuild": "npm run sync-manual",
+    "build": "next build",
     "start": "next start",
     "types:check": "next typegen && tsc --noEmit",
     "lint": "biome check",

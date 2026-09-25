@@ -1,29 +1,15 @@
-import { createGetUrl } from 'fumadocs-core/source';
+export const appName = "ocra";
+export const docsRoute = "/docs";
 
-export const appName = 'My App';
-export const docsRoute = '/docs';
-export const docsImageRoute = '/og/docs';
-export const docsContentRoute = '/llms.mdx/docs';
-
-// fill this with your actual GitHub info, for example:
 export const gitConfig = {
-  user: 'fuma-nama',
-  repo: 'fumadocs',
-  branch: 'main',
+  user: "jma49",
+  repo: "Open-CR-Agent",
+  branch: "main",
 };
 
-const getContentUrl = createGetUrl(docsContentRoute);
+export const repoUrl = `https://github.com/${gitConfig.user}/${gitConfig.repo}`;
 
-export function getPageMarkdownUrl(page: { slugs: string[]; locale?: string }) {
-  const segments = [...page.slugs, 'content.md'];
-
-  return { segments, url: getContentUrl(segments, page.locale) };
-}
-
-const getImageUrl = createGetUrl(docsImageRoute);
-
-export function getPageImageUrl(page: { slugs: string[]; locale?: string }) {
-  const segments = [...page.slugs, 'image.png'];
-
-  return { segments, url: getImageUrl(segments, page.locale) };
+// English lives at the root and other languages under their prefix.
+export function localePath(locale: string, path: string): string {
+  return locale === "en" ? path : `/${locale}${path === "/" ? "" : path}`;
 }
